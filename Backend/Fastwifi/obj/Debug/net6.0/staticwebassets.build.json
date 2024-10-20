@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "Hash": "m7LFPs6BcOpzsldqKI2137fvIMO7zx/eMXk7job1LkM=",
+  "Source": "Fastwifi",
+  "BasePath": "_content/Fastwifi",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Fastwifi\\wwwroot",
+      "Source": "Fastwifi",
+      "ContentRoot": "D:\\Fastwifi Company\\Backend\\Fastwifi\\wwwroot\\",
+      "BasePath": "_content/Fastwifi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "D:\\Fastwifi Company\\Backend\\Fastwifi\\wwwroot\\images\\logo.png",
+      "SourceId": "Fastwifi",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Fastwifi Company\\Backend\\Fastwifi\\wwwroot\\",
+      "BasePath": "_content/Fastwifi",
+      "RelativePath": "images/logo.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\logo.png"
+    },
+    {
+      "Identity": "D:\\Fastwifi Company\\Backend\\Fastwifi\\wwwroot\\images\\logoemail.png",
+      "SourceId": "Fastwifi",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Fastwifi Company\\Backend\\Fastwifi\\wwwroot\\",
+      "BasePath": "_content/Fastwifi",
+      "RelativePath": "images/logoemail.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\logoemail.png"
+    },
+    {
+      "Identity": "D:\\Fastwifi Company\\Backend\\Fastwifi\\wwwroot\\images\\logof.png",
+      "SourceId": "Fastwifi",
+      "SourceType": "Discovered",
+      "ContentRoot": "D:\\Fastwifi Company\\Backend\\Fastwifi\\wwwroot\\",
+      "BasePath": "_content/Fastwifi",
+      "RelativePath": "images/logof.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\logof.png"
+    }
+  ]
+}
