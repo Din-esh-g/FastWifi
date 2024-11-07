@@ -5,6 +5,18 @@ namespace Fastwifi.Helper
 {
     public class SendEmail
     {
+        private readonly DataModels.Context context;
+
+        public SendEmail(DataModels.Context context)
+        {
+            this.context = context;
+        }
+
+        private List<string> GetEmails()
+        {
+            return context.Users.Where(u => u.Role == "Admin").Select(u => u.Email).ToList();
+        }
+
         public static Task SendEmailToUser33(string Toemail, string body)
         {
 
@@ -145,5 +157,6 @@ namespace Fastwifi.Helper
             }
            
         }
+
     }
 }

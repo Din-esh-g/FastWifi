@@ -81,7 +81,6 @@ D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\staticwebassets.pack.json
 D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\staticwebassets.build.json
 D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\staticwebassets.development.json
 D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\scopedcss\bundle\Fastwifi.styles.css
-D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\Fastwifi.csproj.CopyComplete
 D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\Fastwifi.dll
 D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\refint\Fastwifi.dll
 D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\Fastwifi.pdb
@@ -89,3 +88,5 @@ D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\Fastwifi.genruntimeconfig.
 D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\ref\Fastwifi.dll
 D:\Fastwifi Company\Backend\Fastwifi\bin\Debug\net6.0\Microsoft.Office.Interop.Outlook.dll
 D:\Fastwifi Company\Backend\Fastwifi\bin\Debug\net6.0\Castle.Core.dll
+D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\Fastwifi.sourcelink.json
+D:\Fastwifi Company\Backend\Fastwifi\obj\Debug\net6.0\Fastwifi.csproj.Up2Date

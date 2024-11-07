@@ -4,20 +4,21 @@ using Fastwifi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Fastwifi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/contacts")]    
     [ApiController]
-    public class ContactController : ControllerBase
+    public class ContactsController : ControllerBase
     {
         private readonly IEmailService _emailService;
         private readonly Context _context;
 
-        public ContactController(IEmailService emailService, Context dbContext)
+        public ContactsController(IEmailService emailService, Context dbContext)
         {
-            _emailService = emailService;
-            _context = dbContext;
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _context = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         // POST: api/contact
@@ -38,7 +39,6 @@ namespace Fastwifi.Controllers
             };
 
             _context.Contacts.Add(contactMessage);
-            //_context.Co.Add(contactMessage);
             await _context.SaveChangesAsync();
 
             // Send an email notification
@@ -49,6 +49,22 @@ namespace Fastwifi.Controllers
             }
 
             return Ok(new { Message = "Contact message sent successfully!" });
+        }
+
+        // GET: api/contact
+        [HttpGet("all")]
+        public IActionResult GetContactMessages()
+        {
+            var contactMessages = _context.Contacts.ToList();
+            return Ok(contactMessages);
+        }
+
+        // GET: api/contact/count
+        [HttpGet("count")]
+        public IActionResult GetContactMessagesCount()
+        {
+            var contactMessagesCount = _context.Contacts.Count();
+            return Ok(contactMessagesCount);
         }
     }
 }

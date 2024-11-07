@@ -17,9 +17,18 @@
             public string ContactInfo { get; set; }
             public DateTime SignatureDate { get; set; }
             public string UserName { get; set; } // Username field
+        public List<CommentsDto>? Comments { get; set; }
         }
 
-        public class ServiceDetailDto
+    public class CommentsDto
+    {
+        public string? providedBy { get; set; }
+        public string? Message { get; set; }
+        public DateTime SentAt { get; set; } = DateTime.UtcNow;
+
+    }
+
+    public class ServiceDetailDto
         {
             public DateTime Date { get; set; }
             public string Location { get; set; }

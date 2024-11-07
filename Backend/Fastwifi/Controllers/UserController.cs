@@ -66,7 +66,7 @@ namespace Fastwifi.Controllers
 
 
 
-        // POST: api/Users/UpdateStatus
+       // POST: api/User/UpdateStatus
         [HttpPost("UpdateStatus")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUser updateUser)
         {
@@ -168,10 +168,10 @@ namespace Fastwifi.Controllers
                 Username = userr.email.Trim(),
                 Password = PasswordManager.HashPassword(userr.password),
                 Phone = userr.phone,
-                Status = "Active",
+                Status = "Inactive",
                 CreatedOn = DateTime.Now,
                 UpdatedOn = DateTime.Now,
-                UpdatedBy = "Admin"
+                UpdatedBy = "User"
 
 
 
@@ -207,6 +207,15 @@ namespace Fastwifi.Controllers
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.ID == id);
+        }
+
+        //method to count active and inactive users
+        [HttpGet("count")]
+        public IActionResult GetUsersCount()
+        {
+            var activeUsers = _context.Users.Where(u => u.Status == "Active").Count();
+            var inactiveUsers = _context.Users.Where(u => u.Status == "Inactive").Count();
+            return Ok(new { ActiveUsers = activeUsers, InactiveUsers = inactiveUsers });
         }
 
     }

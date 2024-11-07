@@ -23,5 +23,6 @@ namespace Fastwifi.Models
         public string ContactInfo { get; set; }
         public DateTime SignatureDate { get; set; }
         public string UserName { get; set; }  // For the user name in the request
+        public List<Comments>? Comments {get;set;}
     }
 }

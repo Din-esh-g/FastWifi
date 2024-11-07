@@ -1,4 +1,5 @@
-﻿using Fastwifi.DTO;
+﻿using Fastwifi.DataModels;
+using Fastwifi.DTO;
 using Fastwifi.Helper;
 using Fastwifi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -8,19 +9,22 @@ namespace Fastwifi.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class ProgressNotesController : ControllerBase
+
     {
-        private static List<ProgressNote> _progressNotes = new List<ProgressNote>();  // In-memory storage for simplicity
+        private readonly Context _context;        
 
        private readonly IEmailService _emailService;
-        public ProgressNotesController(IEmailService emailService)
+        public ProgressNotesController(IEmailService emailService, Context context )
         {
             _emailService = emailService;
+            _context = context;
         }
        
         // Get all notes
         [HttpGet]
         public ActionResult<IEnumerable<ProgressNote>> GetAll()
         {
+          var  _progressNotes = _context.ProgressNotes.ToList();
             return Ok(_progressNotes);
         }
 
@@ -28,7 +32,7 @@ namespace Fastwifi.Controllers
         [HttpGet("{id}")]
         public ActionResult<ProgressNote> Get(int id)
         {
-            var progressNote = _progressNotes.FirstOrDefault(p => p.Id == id);
+            var progressNote = _context.ProgressNotes.FirstOrDefault(p => p.Id == id);
             if (progressNote == null)
                 return NotFound();
             return Ok(progressNote);
@@ -43,7 +47,7 @@ namespace Fastwifi.Controllers
 
             var newProgressNote = new ProgressNote
             {
-                Id = _progressNotes.Count + 1, // Simple Id generation
+               
                 ConsumerName = progressNoteDto.ConsumerName,
                 ProviderName = progressNoteDto.ProviderName,
                 CPSWCounty = progressNoteDto.CPSWCounty,
@@ -73,11 +77,30 @@ namespace Fastwifi.Controllers
                 Title = progressNoteDto.Title,
                 ContactInfo = progressNoteDto.ContactInfo,
                 SignatureDate = progressNoteDto.SignatureDate,
-                UserName = progressNoteDto.UserName
+                UserName = progressNoteDto.UserName,
+                Comments = progressNoteDto.Comments.Select(c => new Comments
+                {
+                    providedBy = progressNoteDto.UserName,
+                    Message = c.Message,
+                    SentAt = DateTime.UtcNow                                   
+                  
+
+                }).ToList()
+
             };
 
-            _progressNotes.Add(newProgressNote);
-            bool result = await _emailService.SendEmailAsync("dineshg822@gmail.com", "Intervention Report for " + progressNoteDto.ConsumerName, progressNoteDto);
+            
+            try
+            {
+              
+                _context.ProgressNotes.Add(newProgressNote);
+                await _context.SaveChangesAsync();
+            } catch (Exception ex)
+            {
+                  return StatusCode(500, "Error saving note.");
+            }
+
+            bool result = await _emailService.SendEmailAsync("Intervention Report for " + progressNoteDto.ConsumerName, progressNoteDto);
 
             if (result)
             {
@@ -95,7 +118,7 @@ namespace Fastwifi.Controllers
         [HttpPut("{id}")]
         public ActionResult Update(int id, [FromBody] ProgressNoteDto progressNoteDto)
         {
-            var existingNote = _progressNotes.FirstOrDefault(p => p.Id == id);
+            var existingNote =_context.ProgressNotes.FirstOrDefault(p => p.Id == id);
             if (existingNote == null)
                 return NotFound();
 
@@ -129,6 +152,14 @@ namespace Fastwifi.Controllers
             existingNote.ContactInfo = progressNoteDto.ContactInfo;
             existingNote.SignatureDate = progressNoteDto.SignatureDate;
             existingNote.UserName = progressNoteDto.UserName;
+            try { 
+            _context.ProgressNotes.Update(existingNote);
+            _context.SaveChanges();
+                }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Error updating note.");
+            }
 
             return Ok(existingNote);
         }
@@ -137,12 +168,20 @@ namespace Fastwifi.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete(int id)
         {
-            var noteToRemove = _progressNotes.FirstOrDefault(p => p.Id == id);
+            var noteToRemove = _context.ProgressNotes.FirstOrDefault(p => p.Id == id);
             if (noteToRemove == null)
                 return NotFound();
 
-            _progressNotes.Remove(noteToRemove);
+            _context.ProgressNotes.Remove(noteToRemove);
+            _context.SaveChanges();
             return Ok();
+        }
+        //create a method to count the number of notes
+        [HttpGet("count")]
+        public IActionResult GetProgressNotesCount()
+        {
+            var progressNoteCount = _context.ProgressNotes.Count();
+            return Ok(progressNoteCount);
         }
     }
 }

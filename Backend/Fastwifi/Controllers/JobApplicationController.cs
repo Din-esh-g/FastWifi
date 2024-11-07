@@ -1,10 +1,7 @@
 ﻿using Fastwifi.DataModels;
 using Fastwifi.DTO;
-using Fastwifi.Migrations;
 using Fastwifi.Models;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
-
 namespace Fastwifi.Controllers
 {
     [ApiController]
@@ -24,11 +21,25 @@ namespace Fastwifi.Controllers
 
         // GET: api/jobapplication
         [HttpGet]
-        public IActionResult GetJobApplications()
+        public ActionResult<IEnumerable<JobApplicationReturnDTO>> GetJobApplications()
         {
             var jobApplications = _context.JobApplications.ToList();
-            return Ok(jobApplications);
+
+            // Project each JobApplication object to a JobApplicationReturnDTO object
+            var returnJobApplications = jobApplications.Select(jobApplication => new JobApplicationReturnDTO
+            {
+                ID = jobApplication.Id,
+                Name = jobApplication.Name,
+                Phone = jobApplication.Phone,
+                Email = jobApplication.Email,
+                Position = jobApplication.Position,
+                Message = jobApplication.Message,
+                ResumeFileName = jobApplication.ResumeFileName
+            }).ToList();
+
+            return Ok(returnJobApplications);
         }
+
 
         // POST: api/jobapplication
         [HttpPost]
@@ -73,7 +84,31 @@ namespace Fastwifi.Controllers
         }
 
 
+               
+        // DELETE: api/jobapplication/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteJobApplication(int id)
+        {
+            var jobApplication = await _context.JobApplications.FindAsync(id);
+            if (jobApplication == null)
+            {
+                return NotFound();
+            }
 
+            _context.JobApplications.Remove(jobApplication);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = "Job application deleted successfully!" });
+        }
+        //count the number of job applications
+        [HttpGet("count")]
+        public IActionResult GetJobApplicationsCount()
+        {
+            var jobApplicationsCount = _context.JobApplications.Count();
+            return Ok(jobApplicationsCount);
+        }
+        //give me method which will download the resume file when i pass the id of the job application
+        // GET: api/jobapplication/5/resume
         [HttpGet("{id}/resume")]
         public IActionResult GetResume(int id)
         {
@@ -86,6 +121,5 @@ namespace Fastwifi.Controllers
             // Return the resume as a file download
             return File(jobApplication.ResumeData, jobApplication.ResumeContentType, jobApplication.ResumeFileName);
         }
-
     }
 }

@@ -1,4 +1,6 @@
-﻿using Fastwifi.DTO;
+﻿using Fastwifi.DataModels;
+using Fastwifi.DTO;
+using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Net.Mail;
 using System.Net.Mime;
@@ -9,7 +11,7 @@ namespace Fastwifi
     public interface IEmailService
     {
         public Task<bool> TestSendEmailAsync(string toEmail, string subject, string body);
-        public Task<bool> SendEmailAsync(string email, string subject, ProgressNoteDto progressNoteDto);
+        public Task<bool> SendEmailAsync(string subject, ProgressNoteDto progressNoteDto);
         public Task<bool> SendEmailToUser(string Toemail, string body);
         public Task<bool> SendJobApplicationEmailAsync(string recipientEmail, string subject, JobApplicationDto jobApplication);
         Task<bool> SendContactMessageAsync(ContactMessageDto dto);
@@ -17,16 +19,28 @@ namespace Fastwifi
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
-        public EmailService(IConfiguration configuration)
+        private readonly Context _context;
+
+        public EmailService(IConfiguration configuration, Context context)
         {
             _configuration = configuration;
+            _context = context;
         }
+
+        private List<string> GetAdminsEmail()
+        {
+            return _context.Users
+                           .Where(u => u.Status == "Active" && u.Role == "Admin")
+                           .Select(u => u.Email)
+                           .ToList();
+        }
+
         public async Task<bool>TestSendEmailAsync(string email, string subject, string message)
         {
             try
             {
 
-              string smtpSettings =SmtpSettings.SmtpSettings.ToString();
+                string smtpSettings =SmtpSettings.SmtpSettings.ToString();
                 string host = _configuration[smtpSettings + ":" + SmtpSettings.Host.ToString()];
                 int port = Convert.ToInt32(_configuration[smtpSettings + ":" + SmtpSettings.Port.ToString()]);
                 string userName = _configuration[smtpSettings + ":" + SmtpSettings.UserName.ToString()];
@@ -58,69 +72,78 @@ namespace Fastwifi
             }
         }
 
-        public async Task<bool> SendEmailAsync(string email, string subject, ProgressNoteDto progressNoteDto)
+        public async Task<bool> SendEmailAsync(string subject, ProgressNoteDto progressNoteDto)
         {
-            try
+            string smtpSettings = SmtpSettings.SmtpSettings.ToString();
+            string host = _configuration[smtpSettings + ":" + SmtpSettings.Host.ToString()];
+            int port = Convert.ToInt32(_configuration[smtpSettings + ":" + SmtpSettings.Port.ToString()]);
+            string userName = _configuration[smtpSettings + ":" + SmtpSettings.UserName.ToString()];
+            string password = _configuration[smtpSettings + ":" + SmtpSettings.Password.ToString()];
+
+            var client = new SmtpClient(host)
             {
-                string smtpSettings = SmtpSettings.SmtpSettings.ToString();
-                string host = _configuration[smtpSettings + ":" + SmtpSettings.Host.ToString()];
-                int port = Convert.ToInt32(_configuration[smtpSettings + ":" + SmtpSettings.Port.ToString()]);
-                string userName = _configuration[smtpSettings + ":" + SmtpSettings.UserName.ToString()];
-                string password = _configuration[smtpSettings + ":" + SmtpSettings.Password.ToString()];
+                Port = port,
+                Credentials = new NetworkCredential(userName, password),
+                EnableSsl = true
+            };
 
-                var client = new SmtpClient(host)
-                {
-                    Port = port,
-                    Credentials = new NetworkCredential(userName, password),
-                    EnableSsl = true
-                };
-                            
+            string messageBody = "<img src='/images/logoemail.png' alt='Fast Wifi Company'/>" +
+                                 "<br/><br/>" + $@"
+    <p>Dear Reviewer ,</p>
+    <p>I hope this message finds you well. Below are the details submitted by <b>{progressNoteDto.UserName}</b> of the recent intervention report for consumer <b>{progressNoteDto.ConsumerName}</b>:</p>
 
-             string messageBody = "<img src='/images/logoemail.png' alt='Fast Wifi Company'/>" +
-                           "<br/><br/>" + $@"
-            <p>Dear Reviewer ,</p>
-            <p>I hope this message finds you well. Below are the details submitted by <b>{progressNoteDto.UserName}</b> of the recent intervention report for consumer <b>{progressNoteDto.ConsumerName}</b>:</p>
-
+    <ul>
+        <li><b>Consumer Name:</b> {progressNoteDto.ConsumerName}</li>
+        <li><b>Provider Name:</b> {progressNoteDto.ProviderName}</li>
+        <li><b>CPSW County:</b> {progressNoteDto.CPSWCounty}</li>
+        <li><b>Authorized Representative:</b> {progressNoteDto.AuthorizedRep}</li>
+        <li><b>Participants:</b> {progressNoteDto.Participants}</li>
+        <li><b>Path Client:</b> {progressNoteDto.PathClient}</li>
+        <li><b>Intervention Summary:</b></li>
             <ul>
-                <li><b>Consumer Name:</b> {progressNoteDto.ConsumerName}</li>
-                <li><b>Provider Name:</b> {progressNoteDto.ProviderName}</li>
-                <li><b>CPSW County:</b> {progressNoteDto.CPSWCounty}</li>
-                <li><b>Authorized Representative:</b> {progressNoteDto.AuthorizedRep}</li>
-                <li><b>Participants:</b> {progressNoteDto.Participants}</li>
-                <li><b>Path Client:</b> {progressNoteDto.PathClient}</li>
-                <li><b>Intervention Summary:</b></li>
-                    <ul>
-                        {string.Join("", progressNoteDto.InterventionSummaries.Select(i => $"<li>Date: {i.Date}, ALS: {i.ALS}, IP: {i.IP}</li>"))}
-                    </ul>
-                <li><b>Response:</b> {progressNoteDto.Response}</li>
-                <li><b>Additional Information:</b> {progressNoteDto.AdditionalInfo}</li>
-                <li><b>Signature:</b> {progressNoteDto.Signature} on {progressNoteDto.SignatureDate}</li>
-                <li><b>Contact Information:</b> {progressNoteDto.ContactInfo}</li>
-                <li><b>Authorized Agency Representative:</b> {progressNoteDto.Title}</li>
-                <li><b>Title:</b> {progressNoteDto.Title}</li>
+                {string.Join("", progressNoteDto.InterventionSummaries.Select(i => $"<li>Date: {i.Date}, ALS: {i.ALS}, IP: {i.IP}</li>"))}
             </ul>
-            <p>If you have any questions, feel free to contact us at {progressNoteDto.ContactInfo}.</p>
-            <p>Best regards,</p>
-            <p>{progressNoteDto.AuthorizedRep}</p>";
+        <li><b>Response:</b> {progressNoteDto.Response}</li>
+        <li><b>Additional Information:</b> {progressNoteDto.AdditionalInfo}</li>
+        <li><b>Signature:</b> {progressNoteDto.Signature} on {progressNoteDto.SignatureDate}</li>
+        <li><b>Contact Information:</b> {progressNoteDto.ContactInfo}</li>
+        <li><b>Authorized Agency Representative:</b> {progressNoteDto.Title}</li>
+        <li><b>Title:</b> {progressNoteDto.Title}</li>
+    </ul>
+    <p>If you have any questions, feel free to contact us at {progressNoteDto.ContactInfo}.</p>
+    <p>Best regards,</p>
+    <p>{progressNoteDto.AuthorizedRep}</p>";
 
-                var emailMessage = new MailMessage
-                {
-                    From = new MailAddress(userName, "Fast Wifi Socaially Necessary Services"),
-                    Subject = subject,
-                    Body = messageBody,
-                    IsBodyHtml = true
-                };
-              
-                emailMessage.To.Add(email);
-                await client.SendMailAsync(emailMessage);
+            List<string> failedEmails = new List<string>();
+            IEnumerable<string> emails = GetAdminsEmail();
 
-                return true;
-            }
-            catch (Exception ex)
+            foreach (var email in emails)
             {
-                throw new InvalidOperationException(ex.Message);
+                try
+                {
+                    var emailMessage = new MailMessage
+                    {
+                        From = new MailAddress(userName, "Fast Wifi Socially Necessary Services"),
+                        Subject = subject,
+                        Body = messageBody,
+                        IsBodyHtml = true
+                    };
+
+                    emailMessage.To.Add(email);
+                    await client.SendMailAsync(emailMessage);
+                }
+                catch (Exception ex)
+                {
+                    // Log the error (optional)
+                    Console.WriteLine($"Failed to send email to {email}: {ex.Message}");
+                    failedEmails.Add(email); // Collect failed email addresses
+                }
             }
+
+            // Optional: You can return false if there were any failures
+            return failedEmails.Count == 0;
         }
+
 
         public async Task<bool> SendEmailToUser(string Toemail, string body)
         {

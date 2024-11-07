@@ -22,6 +22,36 @@ namespace Fastwifi.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Fastwifi.Models.Comments", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ProgressNoteId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("providedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ProgressNoteId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("Fastwifi.Models.Contact", b =>
                 {
                     b.Property<int>("Id")
@@ -267,6 +297,26 @@ namespace Fastwifi.Migrations
                     b.ToTable("ServiceDetails");
                 });
 
+            modelBuilder.Entity("Fastwifi.Models.SuscribeList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SuscribeLists");
+                });
+
             modelBuilder.Entity("Fastwifi.Models.User", b =>
                 {
                     b.Property<int>("ID")
@@ -322,6 +372,13 @@ namespace Fastwifi.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Fastwifi.Models.Comments", b =>
+                {
+                    b.HasOne("Fastwifi.Models.ProgressNote", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("ProgressNoteId");
+                });
+
             modelBuilder.Entity("Fastwifi.Models.InterventionSummary", b =>
                 {
                     b.HasOne("Fastwifi.Models.ProgressNote", null)
@@ -338,6 +395,8 @@ namespace Fastwifi.Migrations
 
             modelBuilder.Entity("Fastwifi.Models.ProgressNote", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("InterventionSummaries");
 
                     b.Navigation("Services");
